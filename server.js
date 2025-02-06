@@ -6,11 +6,19 @@ require('dotenv').config();
 const path=require('path')
 
 
-const serviceAccount = require('./callingnotification-1ec06-firebase-adminsdk-fbsvc-62a3c13fcc.json');
-// const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+// const serviceAccount = require('./callingnotification-1ec06-firebase-adminsdk-fbsvc-62a3c13fcc.json');
+// // const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
+
+const serviceAccount = JSON.parse(
+  Buffer.from(process.env.FIREBASE_CONFIG_BASE64, 'base64').toString('utf-8')
+);
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
 });
 
 const db=admin.firestore()
