@@ -6,8 +6,8 @@ require('dotenv').config();
 const path=require('path')
 
 
-// const serviceAccount = require(path.join(__dirname,'assets','callingnotification-1ec06-firebase-adminsdk-fbsvc-e23231c576.json'));
-const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+const serviceAccount = require('./callingnotification-1ec06-firebase-adminsdk-fbsvc-84ff2449fc.json');
+// const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
