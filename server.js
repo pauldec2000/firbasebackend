@@ -284,6 +284,56 @@ app.get('/get-users', verifyToken, async (req, res) => {
     }
 });
 
+app.post('/send-message', async (req, res) => {
+    const { senderMobile, receiverMobile, message } = req.body;
+
+    if (!senderMobile || !receiverMobile || !message) {
+        return res.status(400).json({ success: false, message: "Sender mobile, receiver mobile, and message are required." });
+    }
+
+    try {
+        const chatRef = db.collection('chats').doc();
+        await chatRef.set({
+            senderMobile,
+            receiverMobile,
+            message,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        res.status(201).json({ success: true, message: "Message sent successfully." });
+    } catch (error) {
+        console.error('❌ Error sending message:', error);
+        res.status(500).json({ success: false, message: "Error sending message.", error: error.message });
+    }
+});
+
+// API to get chat messages between two users
+app.get('/get-messages', async (req, res) => {
+    const { senderMobile, receiverMobile } = req.query;
+
+    if (!senderMobile || !receiverMobile) {
+        return res.status(400).json({ success: false, message: "Sender mobile and receiver mobile are required." });
+    }
+
+    try {
+        const messagesSnapshot = await db.collection('chats')
+            .where('senderMobile', 'in', [senderMobile, receiverMobile])
+            .where('receiverMobile', 'in', [senderMobile, receiverMobile])
+            .orderBy('timestamp', 'asc')
+            .get();
+
+        const messagesList = messagesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        res.status(200).json({ success: true, messages: messagesList });
+    } catch (error) {
+        console.error('❌ Error fetching messages:', error);
+        res.status(500).json({ success: false, message: "Error fetching messages.", error: error.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log('🔥 Firebase Admin initialized');
